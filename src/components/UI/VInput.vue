@@ -12,7 +12,7 @@
 		align-items: center;
 		gap: 8px;
 		padding: 16px 0 7px;
-		border-bottom: 1px solid $border;
+		// border-bottom: 1px solid $border;
 
 		&__field {
 			flex: 1 1 auto;
@@ -21,7 +21,7 @@
 			min-height: 32px;
 
 			&::placeholder {
-				color: $holder-2;
+				// color: $holder-2;
 			}
 		}
 	}

@@ -10,16 +10,16 @@
 
 <style lang="scss" scoped>
 	.button {
-		background-color: $accent;
+		// background-color: $accent;
 		padding: 8px 16px;
-		color: $alt-color;
+		// color: $alt-color;
 		border-radius: 4px;
 		border: none;
 		cursor: pointer;
 		transition: background-color 0.2s ease;
 
 		&:hover {
-			background-color: $accent-2;
+			// background-color: $accent-2;
 		}
 	}
 </style>
