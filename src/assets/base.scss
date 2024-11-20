@@ -1,4 +1,4 @@
-@use "./colors.scss";
+// @use "./colors.scss";
 
 :root {
   --dark: #151515;
@@ -8,6 +8,7 @@
   --light-white: #fafafa;
   --middle-white: #ececec;
   --accent: #00b5ff;
+  --accent-hover: #00a0df;
 }
 
 $dark: var(--dark);
@@ -17,6 +18,7 @@ $white: var(--white);
 $light-white: var(--light-white);
 $middle-white: var(--middle-white);
 $accent: var(--accent);
+$accent-hover: var(--accent-hover);
 
 * {
   box-sizing: border-box;
