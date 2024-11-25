@@ -4,24 +4,30 @@
 	import VInput from '@/components/UI/VInput.vue';
 	import VButton from '@/components/UI/VButton.vue';
 
-	const res = ref(null);
+	const isAuth = ref(null);
+	const channel = new BroadcastChannel('login');
 
 	const submit = (data) => {
 		data.device = navigator.userAgent;
-		chrome.runtime.sendMessage({ action: 'login', data: data }, (response) => {
-			console.log(response);
-			res.value = response;
-			if (response && response.success) {
-				console.log(response);
-				console.log('Данные успешно отправлены в background');
+		console.log(data);
+		channel.postMessage({ action: 'login', ...data });
+	};
+
+	chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+			if (message.action === 'showAuthenticatedUI') {
+				isAuth.value = 'true';
+			} else if (message.action === 'notShowAuthenticatedUI') {
+				isAuth.value = 'false';
 			}
 		});
-	};
+
+	channel.postMessage({ action: 'check' });
+	
 </script>
 
 <template>
-	{{ res }}
-	<v-form @submit="submit">
+	<div v-if="isAuth" class="authenticated">authenticated</div>
+	<v-form v-else @submit="submit">
 		<v-input type="email" name="email" placeholder="email" required></v-input>
 		<v-input
 			type="password"
@@ -33,4 +39,8 @@
 	</v-form>
 </template>
 
-<style scoped></style>
+<style lang="scss" scoped>
+	.authenticated {
+		color: $accent;
+	}
+</style>

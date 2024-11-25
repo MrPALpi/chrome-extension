@@ -1,14 +1,14 @@
 let token = null;
 
-const getToken = async () => {
-  console.log('test')
-  return await chrome.storage.local.get('token')
+const readToken = async () => {
+  return await chrome.storage.sync.get(['isAuthenticated'])
 }
 
-export default async () => {
+export const getToken = async () => {
   if (token === null) {
-    token = await getToken();
+    const result = await readToken();
+    token = result['isAuthenticated'] ? result['token'] : null;
   }
 
-  return token['token']
+  return token
 }

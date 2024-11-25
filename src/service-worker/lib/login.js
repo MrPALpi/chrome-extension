@@ -1,24 +1,51 @@
-export default () => {
-  chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-    if (request.action === 'login') {
-      const data = request.data;
+import { getToken } from './getToken';
 
-      const res = await fetch('https://hound.sosus.org/auth/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8'
-        },
-        body: JSON.stringify(data)
-      })
+const channelEvents = {
+  login: async (data) => {
+    const res = await fetch('https://hound.sosus.org/auth/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify(data)
+    })
 
-      const body = await res.json();
-      console.log(res.status === 200 && body.token)
-      if (res.status === 200 && body.token) {
-        sendResponse({ success: true, result: true });
-        chrome.storage.local.set({ 'token': body.token })
-      } else {
-        sendResponse({ success: false, result: false });
-      }
+    const body = await res.json();
+    console.log(res.status === 200 && body.token)
+
+    if (res.status === 200 && body.token) {
+      chrome.storage.sync.set({ isAuthenticated: true, token: body.token });
+      chrome.runtime.sendMessage({ action: 'showAuthenticatedUI' });
     }
+  },
+   check: async () => {
+    const token = await getToken();
+
+    if (token !== null) {
+      chrome.runtime.sendMessage({ action: 'showAuthenticatedUI' });
+      return;
+    }
+
+    chrome.runtime.sendMessage({ action: 'notShowAuthenticatedUI' });
+  }
+};
+
+export default () => {
+  const channel = new BroadcastChannel('login');
+
+  channel.onmessage = async (event) => {
+    const data = event.data;
+    channelEvents[data.action](data);
+  };
+
+  // Функция для проверки авторизации при запуске браузера
+  chrome.runtime.onInstalled.addListener(() => {
+    chrome.storage.sync.get(['isAuthenticated'], (result) => {
+      if (result.isAuthenticated) {
+        console.log('Пользователь уже авторизован');
+        // Здесь вы можете обновить UI в popup.js
+        chrome.runtime.sendMessage({ action: 'showAuthenticatedUI' });
+      }
+    });
   });
 }

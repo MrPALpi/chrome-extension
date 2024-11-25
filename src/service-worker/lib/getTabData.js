@@ -6,10 +6,14 @@ export const getTabData = async () => {
     }
 
     const tabDataCallBack = () => {
+      const bodyClone = document.body.cloneNode(true);
+      bodyClone.querySelectorAll('header, nav, footer, style, script, noscript, jdiv').forEach(elm => elm.remove());
+      const text = bodyClone.innerText || bodyClone.textContent;
+
       return {
         url: location.href,
         title: document.title,
-        content: document.body.innerText || document.body.textContent,
+        content: text,
         viewed_at: new Date().toISOString().slice(0, 19)
       }
     }
