@@ -5,10 +5,10 @@ export const getTabData = async () => {
       return false
     }
 
-    const tabDataCallBack = () => {
+    const tabDataCallBack = async () => {
       const bodyClone = document.body.cloneNode(true);
       bodyClone.querySelectorAll('header, nav, footer, style, script, noscript, jdiv').forEach(elm => elm.remove());
-      const text = bodyClone.innerText || bodyClone.textContent;
+      const text = bodyClone.innerText || bodyClone.textContent || '';
 
       return {
         url: location.href,

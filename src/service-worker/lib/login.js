@@ -1,4 +1,4 @@
-import { getToken } from './getToken';
+import { isAuthenticated, setToken } from './token';
 
 const channelEvents = {
   login: async (data) => {
@@ -11,41 +11,33 @@ const channelEvents = {
     })
 
     const body = await res.json();
-    console.log(res.status === 200 && body.token)
 
     if (res.status === 200 && body.token) {
-      chrome.storage.sync.set({ isAuthenticated: true, token: body.token });
-      chrome.runtime.sendMessage({ action: 'showAuthenticatedUI' });
-    }
+      await setToken(body.token);
+      return ['showAuthenticatedUI', true];
+    } 
+    
+    return ['showAuthenticatedUI', false];
+    
   },
    check: async () => {
-    const token = await getToken();
-
-    if (token !== null) {
-      chrome.runtime.sendMessage({ action: 'showAuthenticatedUI' });
-      return;
-    }
-
-    chrome.runtime.sendMessage({ action: 'notShowAuthenticatedUI' });
+    const isAuth = await isAuthenticated();
+    return ['showAuthenticatedUI', isAuth];
   }
 };
 
-export default () => {
+export const login = () => {
+
   const channel = new BroadcastChannel('login');
 
-  channel.onmessage = async (event) => {
-    const data = event.data;
-    channelEvents[data.action](data);
-  };
+  channel.onmessage = async (messageEvent) => {
+  const {action, form} = messageEvent.data;
 
-  // Функция для проверки авторизации при запуске браузера
-  chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.sync.get(['isAuthenticated'], (result) => {
-      if (result.isAuthenticated) {
-        console.log('Пользователь уже авторизован');
-        // Здесь вы можете обновить UI в popup.js
-        chrome.runtime.sendMessage({ action: 'showAuthenticatedUI' });
-      }
-    });
-  });
+  if (action in channelEvents === false) {
+    return
+  }
+
+  const [resultAction, resultData] = await channelEvents[action](form);
+  channel.postMessage({action: resultAction, result: resultData});
+};
 }

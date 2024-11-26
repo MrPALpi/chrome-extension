@@ -1,5 +1,5 @@
 <script setup>
-	import { ref } from 'vue';
+	import { ref, onMounted } from 'vue';
 	import VForm from '@/components/UI/VForm.vue';
 	import VInput from '@/components/UI/VInput.vue';
 	import VButton from '@/components/UI/VButton.vue';
@@ -9,19 +9,16 @@
 
 	const submit = (data) => {
 		data.device = navigator.userAgent;
-		console.log(data);
-		channel.postMessage({ action: 'login', ...data });
+		channel.postMessage({action: 'login', form: data});
 	};
 
-	chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-			if (message.action === 'showAuthenticatedUI') {
-				isAuth.value = 'true';
-			} else if (message.action === 'notShowAuthenticatedUI') {
-				isAuth.value = 'false';
-			}
-		});
+		channel.onmessage = (messageEvent) => {
+		if (messageEvent.data.action === 'showAuthenticatedUI') {
+			isAuth.value = messageEvent.data.result;	
+		}
+	}
 
-	channel.postMessage({ action: 'check' });
+	channel.postMessage({action:'check'});
 	
 </script>
 
