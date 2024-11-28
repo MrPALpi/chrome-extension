@@ -1,7 +1,7 @@
 let token = null;
 
 const readToken = async () => {
-  return await chrome.storage.sync.get(['isAuthenticated'])
+  return await chrome.storage.sync.get(['token', 'isAuthenticated']);
 }
 
 const setToken = async (token) => {

@@ -20,14 +20,16 @@ export const newTab = () => {
       return;
     }
 
-    chrome.scripting.executeScript({ target: { tabId: tabId }, func: getTabData }, async (results) => {
+    chrome.scripting.executeScript({ target: { tabId }, func: getTabData }, async (results) => {
       if (!(results && results[0] && results[0].result)) {
         return;
       }
-      try {
-        const tabData = await cleanText(results[0].result.content);
-        const id = await createHash(tabData.url + tabData.content);
 
+      try {
+        const tabData = results[0].result;
+        tabData.content = await cleanText(tabData.content);
+        const id = await createHash(`${tabData.url}_${tabData.content}`);
+ 
         chrome.storage.local.get(id, async (data) => {
           if (Object.keys(data).length !== 0) {
             return
